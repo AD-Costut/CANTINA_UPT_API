@@ -1,19 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Authorization;
+using System.Security.Cryptography;
 
 namespace SSD_POLI_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DailyMenuController : ControllerBase
+    public class StandardMenuController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
 
-        public DailyMenuController(ApplicationDbContext context, IConfiguration configuration)
+        public StandardMenuController(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
             _configuration = configuration;
@@ -39,14 +40,14 @@ namespace SSD_POLI_API.Controllers
 
                 var email = principal.Identity.Name;
 
-             
+                // Extract the domain from the email address
                 var emailParts = email.Split('@');
                 if (emailParts.Length != 2)
                 {
                     return BadRequest("Invalid email address format");
                 }
 
-                var domain = emailParts[1].ToLower(); 
+                var domain = emailParts[1].ToLower(); // Convert to lowercase for case-insensitive comparison
 
                 var user = _context.LoginUser.FirstOrDefault(u => u.Email == email);
 
@@ -54,9 +55,9 @@ namespace SSD_POLI_API.Controllers
                 {
                     var isUptDomain = domain == "upt.ro" || domain.EndsWith(".upt.ro");
 
-                    var dailyMenu = _context.DailyMenu.ToList();
+                    var standardMenu = _context.StandardMenu.ToList();
 
-                    if (dailyMenu == null || dailyMenu.Count == 0)
+                    if (standardMenu == null || standardMenu.Count == 0)
                     {
                         return NotFound();
                     }
@@ -64,7 +65,7 @@ namespace SSD_POLI_API.Controllers
                     var response = new
                     {
                         IsUptDomain = isUptDomain,
-                        DailyMenu = dailyMenu
+                        StandardMenu = standardMenu
                     };
 
                     return Ok(response);
@@ -78,31 +79,6 @@ namespace SSD_POLI_API.Controllers
             {
                 return BadRequest($"JWT validation failed: {ex.Message}");
             }
-        }
-        [HttpPut("Picture/{id}")]
-        public IActionResult Put(int id, [FromBody] DailyMenuModel updatedItem)
-        {
-            var dailyMenuItem = _context.DailyMenu.FirstOrDefault(item => item.Id == id);
-
-            if (dailyMenuItem == null)
-            {
-                return NotFound("Daily menu item not found.");
-            }
-
-            dailyMenuItem.Title = updatedItem.Title;
-            dailyMenuItem.Description = updatedItem.Description;
-            dailyMenuItem.PriceForUPT = updatedItem.PriceForUPT;
-            dailyMenuItem.PriceOutsidersUPT = updatedItem.PriceOutsidersUPT;
-            dailyMenuItem.Picture = updatedItem.Picture;
-
-            _context.SaveChanges();
-
-            var response = new
-            {
-                UpdatedItem = dailyMenuItem
-            };
-
-            return Ok(response);
         }
 
     }

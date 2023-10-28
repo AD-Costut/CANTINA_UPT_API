@@ -8,4 +8,5 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<LoginModel> LoginUser { get; set; }
     public DbSet<DailyMenuModel> DailyMenu { get; set; }
+    public DbSet<StandardMenuModel> StandardMenu { get; set; }
 }
