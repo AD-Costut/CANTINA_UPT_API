@@ -39,14 +39,14 @@ namespace SSD_POLI_API.Controllers
 
                 var email = principal.Identity.Name;
 
-             
+
                 var emailParts = email.Split('@');
                 if (emailParts.Length != 2)
                 {
                     return BadRequest("Invalid email address format");
                 }
 
-                var domain = emailParts[1].ToLower(); 
+                var domain = emailParts[1].ToLower();
 
                 var user = _context.LoginUser.FirstOrDefault(u => u.Email == email);
 
@@ -80,7 +80,7 @@ namespace SSD_POLI_API.Controllers
             }
         }
         [HttpPut("Picture/{id}")]
-        public IActionResult Put(int id, [FromBody] DailyMenuModel updatedItem)
+        public IActionResult Put(int id, [FromForm] DailyMenuModel updatedItem, [FromForm] IFormFile image)
         {
             var dailyMenuItem = _context.DailyMenu.FirstOrDefault(item => item.Id == id);
 
@@ -93,7 +93,15 @@ namespace SSD_POLI_API.Controllers
             dailyMenuItem.Description = updatedItem.Description;
             dailyMenuItem.PriceForUPT = updatedItem.PriceForUPT;
             dailyMenuItem.PriceOutsidersUPT = updatedItem.PriceOutsidersUPT;
-            dailyMenuItem.Picture = updatedItem.Picture;
+
+            if (image != null)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    image.CopyTo(memoryStream);
+                    dailyMenuItem.Picture = memoryStream.ToArray();
+                }
+            }
 
             _context.SaveChanges();
 
@@ -104,6 +112,7 @@ namespace SSD_POLI_API.Controllers
 
             return Ok(response);
         }
+
 
     }
 }
