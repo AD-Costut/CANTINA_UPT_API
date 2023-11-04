@@ -183,5 +183,6 @@ namespace SSD_POLI_API.Controllers
                 return BadRequest($"Error: {ex.Message}");
             }
         }
+
     }
 }

@@ -81,5 +81,61 @@ namespace SSD_POLI_API.Controllers
             }
         }
 
+        [HttpPut("Picture/{id}")]
+        public IActionResult Put(int id, [FromForm] StandardMenuModel updatedItem, [FromForm] IFormFile image)
+        {
+            var standardMenuItem = _context.StandardMenu.FirstOrDefault(item => item.Id == id);
+
+            if (standardMenuItem == null)
+            {
+                return NotFound("Daily menu item not found.");
+            }
+
+            standardMenuItem.Title = updatedItem.Title;
+            standardMenuItem.Description = updatedItem.Description;
+            // dailyMenuItem.PriceForUPT = updatedItem.PriceForUPT;
+            // dailyMenuItem.PriceOutsidersUPT = updatedItem.PriceOutsidersUPT;
+
+            if (image != null)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    image.CopyTo(memoryStream);
+                    standardMenuItem.Picture = memoryStream.ToArray();
+                }
+            }
+
+            _context.SaveChanges();
+
+            var response = new
+            {
+                UpdatedItem = standardMenuItem
+            };
+
+            return Ok(response);
+        }
+        [HttpDelete("delete")]
+        public IActionResult DeleteStandardMenuItems([FromBody] int[] ids)
+        {
+            try
+            {
+
+                var standardMenuItemsToDelete = _context.StandardMenu.Where(item => ids.Contains(item.Id)).ToList();
+                if (standardMenuItemsToDelete.Count == 0)
+                {
+                    return NotFound("No matching standard menu items found for deletion.");
+                }
+
+                _context.StandardMenu.RemoveRange(standardMenuItemsToDelete);
+                _context.SaveChanges();
+
+                return Ok("Standard menu items deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error deleting standard menu items: {ex.Message}");
+            }
+        }
     }
+
 }

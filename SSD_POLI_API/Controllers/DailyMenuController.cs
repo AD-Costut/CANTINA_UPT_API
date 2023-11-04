@@ -91,8 +91,7 @@ namespace SSD_POLI_API.Controllers
 
             dailyMenuItem.Title = updatedItem.Title;
             dailyMenuItem.Description = updatedItem.Description;
-            dailyMenuItem.PriceForUPT = updatedItem.PriceForUPT;
-            dailyMenuItem.PriceOutsidersUPT = updatedItem.PriceOutsidersUPT;
+         
 
             if (image != null)
             {
@@ -112,7 +111,74 @@ namespace SSD_POLI_API.Controllers
 
             return Ok(response);
         }
+        [HttpDelete("delete")]
+        public IActionResult DeleteDailyMenuItems([FromBody] int[] ids)
+        {
+            try
+            {
+
+                var dailyMenuItemsToDelete = _context.DailyMenu.Where(item => ids.Contains(item.Id)).ToList();
+                if (dailyMenuItemsToDelete.Count == 0)
+                {
+                    return NotFound("No matching daily menu items found for deletion.");
+                }
+
+                _context.DailyMenu.RemoveRange(dailyMenuItemsToDelete);
+                _context.SaveChanges();
+
+                return Ok("Daily menu items deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error deleting daily menu items: {ex.Message}");
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Post([FromForm] DailyMenuModel newItem, [FromForm] IFormFile image)
+        {
+            if (newItem == null)
+            {
+                return BadRequest("Invalid request data.");
+            }
+
+            try
+            {
+                var dailyMenuItem = new DailyMenuModel
+                {
+                    Title = newItem.Title,
+                    Description = newItem.Description,
+                    PriceForUPT = newItem.PriceForUPT,
+                    PriceOutsidersUPT = newItem.PriceOutsidersUPT
+                };
+
+                if (image != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        image.CopyTo(memoryStream);
+                        dailyMenuItem.Picture = memoryStream.ToArray();
+                    }
+                }
+
+                _context.DailyMenu.Add(dailyMenuItem);
+                _context.SaveChanges();
+
+                var response = new
+                {
+                    AddedItem = dailyMenuItem
+                };
+
+                return CreatedAtAction(nameof(Get), new { id = dailyMenuItem.Id }, response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error adding daily menu item: {ex.Message}");
+            }
+        }
+
 
 
     }
+
 }
