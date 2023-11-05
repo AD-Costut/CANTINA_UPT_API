@@ -111,6 +111,31 @@ namespace SSD_POLI_API.Controllers
 
             return Ok(response);
         }
+
+        [HttpPut("CardMenu/{id}")]
+        public IActionResult Put(int id, [FromForm] DailyMenuModel updatedItem)
+        {
+            var dailyMenuItem = _context.DailyMenu.FirstOrDefault(item => item.Id == id);
+
+            if (dailyMenuItem == null)
+            {
+                return NotFound("Daily menu item not found.");
+            }
+
+            dailyMenuItem.Title = updatedItem.Title;
+            dailyMenuItem.Description = updatedItem.Description;
+
+
+            _context.SaveChanges();
+
+            var response = new
+            {
+                UpdatedItem = dailyMenuItem
+            };
+
+            return Ok(response);
+        }
+
         [HttpDelete("delete")]
         public IActionResult DeleteDailyMenuItems([FromBody] int[] ids)
         {
