@@ -173,8 +173,8 @@ namespace SSD_POLI_API.Controllers
                 {
                     Title = newItem.Title,
                     Description = newItem.Description,
-                    PriceForUPT = newItem.PriceForUPT,
-                    PriceOutsidersUPT = newItem.PriceOutsidersUPT
+                    PriceForUPT = newItem.PriceForUPT/100.0,
+                    PriceOutsidersUPT = newItem.PriceOutsidersUPT/100.0
                 };
 
                 if (image != null)

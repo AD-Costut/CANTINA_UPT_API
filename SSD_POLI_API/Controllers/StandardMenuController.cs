@@ -114,6 +114,31 @@ namespace SSD_POLI_API.Controllers
 
             return Ok(response);
         }
+
+        [HttpPut("CardMenu/{id}")]
+        public IActionResult Put(int id, [FromForm] StandardMenuModel updatedItem)
+        {
+            var standardMenuItem = _context.StandardMenu.FirstOrDefault(item => item.Id == id);
+
+            if (standardMenuItem == null)
+            {
+                return NotFound("Standard menu item not found.");
+            }
+
+            standardMenuItem.Title = updatedItem.Title;
+            standardMenuItem.Description = updatedItem.Description;
+
+
+            _context.SaveChanges();
+
+            var response = new
+            {
+                UpdatedItem = standardMenuItem
+            };
+
+            return Ok(response);
+        }
+
         [HttpDelete("delete")]
         public IActionResult DeleteStandardMenuItems([FromBody] int[] ids)
         {
@@ -136,6 +161,50 @@ namespace SSD_POLI_API.Controllers
                 return BadRequest($"Error deleting standard menu items: {ex.Message}");
             }
         }
+
+        [HttpPost]
+        public IActionResult Post([FromForm] StandardMenuModel newItem, [FromForm] IFormFile image)
+        {
+            if (newItem == null)
+            {
+                return BadRequest("Invalid request data.");
+            }
+
+            try
+            {
+                var standardMenuItem = new StandardMenuModel
+                {
+                    Title = newItem.Title,
+                    Description = newItem.Description,
+                    PriceForUPT = newItem.PriceForUPT/100.0,
+                    PriceOutsidersUPT = newItem.PriceOutsidersUPT/100.0,
+                };
+
+                if (image != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        image.CopyTo(memoryStream);
+                        standardMenuItem.Picture = memoryStream.ToArray();
+                    }
+                }
+
+                _context.StandardMenu.Add(standardMenuItem);
+                _context.SaveChanges();
+
+                var response = new
+                {
+                    AddedItem = standardMenuItem
+                };
+
+                return CreatedAtAction(nameof(Get), new { id = standardMenuItem.Id }, response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error adding daily menu item: {ex.Message}");
+            }
+        } 
+
     }
 
 }
