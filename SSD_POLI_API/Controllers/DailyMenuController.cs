@@ -124,6 +124,8 @@ namespace SSD_POLI_API.Controllers
 
             dailyMenuItem.Title = updatedItem.Title;
             dailyMenuItem.Description = updatedItem.Description;
+            dailyMenuItem.PriceForUPT = updatedItem.PriceForUPT / 100.0f;
+            dailyMenuItem.PriceOutsidersUPT = updatedItem.PriceOutsidersUPT / 100.0f;
 
 
             _context.SaveChanges();

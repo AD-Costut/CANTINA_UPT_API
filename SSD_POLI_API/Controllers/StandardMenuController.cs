@@ -127,6 +127,8 @@ namespace SSD_POLI_API.Controllers
 
             standardMenuItem.Title = updatedItem.Title;
             standardMenuItem.Description = updatedItem.Description;
+            standardMenuItem.PriceForUPT = updatedItem.PriceForUPT/100.0;
+            standardMenuItem.PriceOutsidersUPT = updatedItem.PriceOutsidersUPT/100.0;
 
 
             _context.SaveChanges();
