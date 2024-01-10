@@ -9,4 +9,6 @@ public class StandardMenuModel
     public double PriceOutsidersUPT { get; set; }
     public byte[]? Picture { get; set; }
 
+    public int Portions { get; set; }
+
 }

@@ -126,6 +126,8 @@ namespace SSD_POLI_API.Controllers
             dailyMenuItem.Description = updatedItem.Description;
             dailyMenuItem.PriceForUPT = updatedItem.PriceForUPT / 100.0f;
             dailyMenuItem.PriceOutsidersUPT = updatedItem.PriceOutsidersUPT / 100.0f;
+            dailyMenuItem.Portions = updatedItem.Portions;
+         
 
 
             _context.SaveChanges();
@@ -176,7 +178,9 @@ namespace SSD_POLI_API.Controllers
                     Title = newItem.Title,
                     Description = newItem.Description,
                     PriceForUPT = newItem.PriceForUPT/100.0,
-                    PriceOutsidersUPT = newItem.PriceOutsidersUPT/100.0
+                    PriceOutsidersUPT = newItem.PriceOutsidersUPT/100.0,
+                    Portions=newItem.Portions,
+
                 };
 
                 if (image != null)
